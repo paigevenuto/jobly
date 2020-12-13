@@ -1,0 +1,39 @@
+{
+  "$schema": "companySchema",
+  "type": "object",
+  "examples": [
+    {
+    "handle": "apple",
+    "name": "Apple Computers",
+    "num_employees": 147000,
+    "description": "You remember the Apple 2 right?",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/8/84/Apple_Computer_Logo_rainbow.svg"
+    }
+  ],
+  "required": [
+      "handle",
+      "name"
+  ],
+  "properties": {
+    "handle": {
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "num_employees": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "logo_url": {
+      "type": "string",
+      "pattern": "^(.*)$"
+    }
+  },
+  "additionalProperties": false
+}
