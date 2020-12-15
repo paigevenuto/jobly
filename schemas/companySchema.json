@@ -17,22 +17,22 @@
   "properties": {
     "handle": {
       "type": "string",
-      "pattern": "^(.*)$"
+      "pattern": "^(.+)$"
     },
     "name": {
       "type": "string",
-      "pattern": "^(.*)$"
+      "pattern": "^(.+)$"
     },
     "num_employees": {
       "type": "number"
     },
     "description": {
       "type": "string",
-      "pattern": "^(.*)$"
+      "pattern": "^(.+)$"
     },
     "logo_url": {
       "type": "string",
-      "pattern": "^(.*)$"
+      "pattern": "^(.+)$"
     }
   },
   "additionalProperties": false

@@ -1,0 +1,44 @@
+{
+  "$schema": "jobSchema",
+  "type": "object",
+  "examples": [
+    {
+      "id": 1,
+      "title": "Software Engineer",
+      "salary": 90000.00,
+      "equity": 0.45
+    }
+  ],
+  "required": [
+      "title",
+      "salary",
+      "equity"
+  ],
+  "properties": {
+    "id": {
+      "type": "number",
+      "pattern": "^(.+)$"
+    },
+    "title": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "salary": {
+      "type": "number",
+      "pattern": "^(.+)$"
+    },
+    "equity": {
+      "type": "number",
+      "pattern": "^(.+)$"
+    },
+    "company_handle": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "date_posted": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    }
+  },
+  "additionalProperties": false
+}

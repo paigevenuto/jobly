@@ -3,6 +3,7 @@ const Router = require("express").Router;
 const Company = require("../models/company");
 const jsonschema = require("jsonschema");
 const companySchema = require("../schemas/companySchema");
+const { ensureLoggedIn, ensureAdminUser } = require("../middleware/auth");
 
 const router = new Router();
 
@@ -12,7 +13,7 @@ const router = new Router();
  * {companies: [companyData, ...]}
  */
 
-router.get("/", async function (req, res, next) {
+router.get("/", ensureLoggedIn, async function (req, res, next) {
   try {
     const companies = await Company.all(req.query);
     return res.json({ companies });
@@ -27,7 +28,7 @@ router.get("/", async function (req, res, next) {
  * {company: companyData}
  */
 
-router.post("/", async function (req, res, next) {
+router.post("/", ensureAdminUser, async function (req, res, next) {
   try {
     const result = jsonschema.validate(req.body, companySchema);
 
@@ -49,7 +50,7 @@ router.post("/", async function (req, res, next) {
  * {company: companyData}
  */
 
-router.get("/:handle", async function (req, res, next) {
+router.get("/:handle", ensureLoggedIn, async function (req, res, next) {
   try {
     const company = await Company.get(req.params.handle);
     return res.json({ company });
@@ -64,7 +65,7 @@ router.get("/:handle", async function (req, res, next) {
  * {message: "Company deleted"}
  */
 
-router.delete("/:handle", async function (req, res, next) {
+router.delete("/:handle", ensureAdminUser, async function (req, res, next) {
   try {
     await Company.delete(req.params.handle);
     return res.json({ message: "Company deleted" });
@@ -79,7 +80,7 @@ router.delete("/:handle", async function (req, res, next) {
  * {company: companyData}
  */
 
-router.patch("/:handle", async function (req, res, next) {
+router.patch("/:handle", ensureAdminUser, async function (req, res, next) {
   try {
     const company = await Company.edit(req.params.handle, req.body);
     return res.json({ company });

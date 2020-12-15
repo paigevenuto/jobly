@@ -3,28 +3,26 @@ const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const db = require("../db");
 const sqlForInsert = require("../helpers/insert");
 
-/** Company class for Jobly
- * {companies: [companyData, ...]} */
-
-class Company {
+class Job {
   /*
    * ALL
-   * Returns handle and name of all companies matching parameters
-   * {companies: [companyData, ...]}
+   * Returns handle and name of all jobs matching parameters
+   * {jobs: [jobData, ...]}
    */
 
   static async all(params) {
     // Prepares values from parameters
+
     const paramValues = { ...params };
     if (paramValues.search) paramValues.search = `%${paramValues.search}%`;
 
     // Templates for generating query
 
-    let baseQuery = `SELECT handle, name FROM companies`;
+    let baseQuery = `SELECT title, company_handle FROM jobs`;
     const clauseTemplates = {
-      min_employees: "num_employees >= $",
-      max_employees: "num_employees <= $",
-      search: "name ILIKE $",
+      min_equity: "equity >= $",
+      min_salary: "salary >= $",
+      search: "title ILIKE $",
     };
     const queryValues = [];
     const queryClauses = [];
@@ -51,12 +49,12 @@ class Company {
 
   /*
    * CREATE
-   * Creates a new company and returns it's data
-   * {company: companyData}
+   * Creates a new job and returns it's data
+   * {job: jobData}
    */
 
   static async create(params) {
-    const query = sqlForInsert("companies", params);
+    const query = sqlForInsert("jobs", params);
     try {
       const results = await db.query(query.query, query.values);
       if (!results.rowCount) {
@@ -70,64 +68,64 @@ class Company {
 
   /*
    * GET
-   * Returns data of one company matching handle
-   * {company: companyData}
+   * Returns data of one job matching id
+   * {job: jobData}
    */
 
-  static async get(handle) {
+  static async get(id) {
     const results = await db.query(
       `
-        SELECT * FROM companies
-        WHERE handle = $1`,
-      [handle]
+        SELECT * FROM jobs
+        WHERE id = $1`,
+      [id]
     );
-    const jobs = await db.query(
+    const company = await db.query(
       `
-          SELECT * FROM jobs
-          WHERE company_handle = $1`,
-      [handle]
+          SELECT * FROM companies
+          WHERE handle =$1`,
+      [results.rows[0].company_handle]
     );
     if (!results.rowCount) {
-      throw new ExpressError(`${handle} not found`, 404);
+      throw new ExpressError(`${id} not found`, 404);
     }
-    results.rows[0].jobs = jobs.rows;
+    results.rows[0].company = company.rows;
     return results.rows[0];
   }
 
   /*
    * DELETE
-   * Deletes one company matching handle
-   * {message: "Company deleted"}
+   * Deletes one job matching id
+   * {message: "Job deleted"}
    */
 
-  static async delete(handle) {
+  static async delete(id) {
     const results = await db.query(
       `
-        DELETE FROM companies
-        WHERE handle = $1
-        RETURNING handle`,
-      [handle]
+        DELETE FROM jobs
+        WHERE id = $1
+        RETURNING id`,
+      [id]
     );
     if (!results.rowCount) {
-      throw new ExpressError(`${handle} not found`, 404);
+      throw new ExpressError(`${id} not found`, 404);
     }
     return results.rows[0];
   }
 
   /*
    * EDIT
-   * Edits a company and returns it's data
-   * {company: companyData}
+   * Edits a job and returns it's data
+   * {job: jobData}
    */
 
-  static async edit(handle, items) {
-    const query = sqlForPartialUpdate("companies", items, "handle", handle);
+  static async edit(id, items) {
+    const query = sqlForPartialUpdate("jobs", items, "id", id);
     const results = await db.query(query.query, query.values);
     if (!results.rowCount) {
-      throw new ExpressError(`${handle} not found`, 404);
+      throw new ExpressError(`${id} not found`, 404);
     }
     return results.rows[0];
   }
 }
 
-module.exports = Company;
+module.exports = Job;

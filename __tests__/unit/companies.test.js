@@ -1,45 +1,36 @@
 process.env.NODE_ENV = "test";
 const request = require("supertest");
 const app = require("../../app");
-const db = require("../../db");
+const {
+  commonBeforeAll,
+  commonBeforeEach,
+  commonAfterAll,
+  commonAfterEach,
+  adminToken,
+} = require("../../helpers/testCommons");
 
-const sampleComp = {
-  handle: "sample",
-  name: "The Sample Company",
-};
-const exampleComp = {
-  handle: "example",
-  name: "The Example Company",
-};
+beforeAll(commonBeforeAll);
+beforeEach(commonBeforeEach);
+afterEach(commonAfterEach);
+afterAll(commonAfterAll);
 
-beforeAll(async function () {
-  await db.query("DELETE FROM companies");
-});
-
-afterEach(async function () {
-  await db.query("DELETE FROM companies");
-});
-
-afterAll(async function () {
-  await db.end();
-});
 /*
  *
  *Tests GET /Companies route
  *
  */
 describe("GET /companies", function () {
-  beforeAll(async function () {
-    await request(app).post("/companies").send(sampleComp);
-    await request(app).post("/companies").send(exampleComp);
-  });
-
   test("Returns all companies", async function () {
-    const resp = await request(app).get("/companies");
+    const resp = await request(app)
+      .get("/companies")
+      .send({ token: adminToken });
     expect(resp.status).toEqual(200);
     expect(resp.body.companies).toHaveLength(2);
     expect(resp.body.companies).toEqual(
-      expect.arrayContaining([sampleComp, exampleComp])
+      expect.arrayContaining([
+        { handle: "sample", name: "The Sample Company" },
+        { handle: "example", name: "The Example Company" },
+      ])
     );
   });
 });
@@ -50,12 +41,14 @@ describe("GET /companies", function () {
  */
 describe("POST /companies", function () {
   test("Adds a new company", async function () {
-    const resp = await request(app).post("/companies").send(sampleComp);
+    const resp = await request(app)
+      .post("/companies")
+      .send({ handle: "testco", name: "The Test Company", token: adminToken });
     expect(resp.status).toEqual(201);
     expect(resp.body).toMatchObject({
       company: {
-        handle: "sample",
-        name: "The Sample Company",
+        handle: "testco",
+        name: "The Test Company",
         num_employees: null,
         description: null,
         logo_url: null,
@@ -69,14 +62,13 @@ describe("POST /companies", function () {
  *
  */
 describe("GET /companies/:handle", function () {
-  beforeAll(async function () {
-    await request(app).post("/companies").send(sampleComp);
-    await request(app).post("/companies").send(exampleComp);
-  });
-
   test("Returns a queried company", async function () {
-    const resp1 = await request(app).get(`/companies/${sampleComp.handle}`);
-    const resp2 = await request(app).get(`/companies/${exampleComp.handle}`);
+    const resp1 = await request(app)
+      .get("/companies/sample")
+      .send({ token: adminToken });
+    const resp2 = await request(app)
+      .get("/companies/example")
+      .send({ token: adminToken });
     expect(resp1.status).toEqual(200);
     expect(resp1.body).toMatchObject({
       company: {
@@ -104,14 +96,12 @@ describe("GET /companies/:handle", function () {
  *
  */
 describe("PATCH /companies/:handle", function () {
-  beforeEach(async function () {
-    await request(app).post("/companies").send(sampleComp);
-  });
-
   test("Completely updates a company", async function () {
-    const resp = await request(app)
-      .patch(`/companies/${sampleComp.handle}`)
-      .send({ num_employees: 888, name: "We sell samples" });
+    const resp = await request(app).patch("/companies/sample").send({
+      num_employees: 888,
+      name: "We sell samples",
+      token: adminToken,
+    });
     expect(resp.body).toMatchObject({
       company: {
         handle: "sample",
@@ -132,8 +122,8 @@ describe("PATCH /companies/:handle", function () {
       logo_url: "http://newcorp.com/logo.png",
     };
     const resp = await request(app)
-      .patch(`/companies/${sampleComp.handle}`)
-      .send(newCorp);
+      .patch("/companies/sample")
+      .send({ ...newCorp, token: adminToken });
     expect(resp.body).toMatchObject({ company: newCorp });
   });
 });
@@ -143,17 +133,15 @@ describe("PATCH /companies/:handle", function () {
  *
  */
 describe("DELETE /companies/:handle", function () {
-  beforeEach(async function () {
-    await request(app).post("/companies").send(sampleComp);
-  });
-
   test("Deletes a company", async function () {
-    const resp = await request(app).delete(`/companies/${sampleComp.handle}`);
+    const resp = await request(app).delete("/companies/sample").send({
+      token: adminToken,
+    });
     expect(resp.body).toMatchObject({ message: "Company deleted" });
     expect(resp.status).toEqual(200);
-    const checkExists = await request(app).get(
-      `/companies/${sampleComp.handle}`
-    );
+    const checkExists = await request(app)
+      .get("/companies/sample")
+      .send({ token: adminToken });
     expect(checkExists.status).toEqual(404);
   });
 });

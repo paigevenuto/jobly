@@ -1,0 +1,52 @@
+{
+  "$schema": "userSchema",
+  "type": "object",
+  "examples": [
+    {
+      "username": "JaneS",
+      "password": "Password1",
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "example@mail.com",
+      "photo_url": "http://example.com/pfp.png",
+      "is_admin": false
+    }
+  ],
+  "required": [
+      "username",
+      "first_name",
+      "last_name",
+      "email"
+  ],
+  "properties": {
+    "username": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "password": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "first_name": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "last_name": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "email": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "photo_url": {
+      "type": "string",
+      "pattern": "^(.+)$"
+    },
+    "is_admin": {
+      "type": "boolean",
+      "pattern": "^(.+)$"
+    }
+  },
+  "additionalProperties": false
+}
